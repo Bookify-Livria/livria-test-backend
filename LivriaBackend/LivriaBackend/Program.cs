@@ -119,6 +119,7 @@ builder.Services.AddScoped<ICartItemQueryService, CartItemQueryService>();
 builder.Services.AddScoped<IOrderCommandService, OrderCommandService>();
 builder.Services.AddScoped<IOrderQueryService, OrderQueryService>();
 
+builder.Services.AddScoped<IRecommendationQueryService, RecommendationQueryService>();
 
 
 builder.Services.AddAutoMapper(
