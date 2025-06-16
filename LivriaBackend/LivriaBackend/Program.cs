@@ -36,6 +36,7 @@ using LivriaBackend.notifications.Interfaces.REST.Transform;
 
 using LivriaBackend.commerce.Interfaces.REST.Transform;
 
+using System.Globalization;
 
 using System.Reflection;
 using System.Linq;
@@ -44,6 +45,20 @@ using Microsoft.Extensions.Logging;
 
 
 var builder = WebApplication.CreateBuilder(args);
+
+/* Localization Start */
+builder.Services.AddLocalization();
+var localizationOptions = new RequestLocalizationOptions();
+var supportedCultures = new[]
+{
+    new CultureInfo("en-US"),
+    new CultureInfo("es-ES")
+};
+localizationOptions.SupportedCultures = supportedCultures;
+localizationOptions.SupportedUICultures = supportedCultures;
+localizationOptions.SetDefaultCulture("en-US");
+localizationOptions.ApplyCurrentCultureToResponseHeaders = true;
+/* Localization End */
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
@@ -117,8 +132,12 @@ builder.Services.AddAutoMapper(
 
 builder.Services.AddScoped<IUserClientContextFacade, UserClientContextFacade>();
 
-
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddDataAnnotationsLocalization(options =>
+    {
+        options.DataAnnotationLocalizerProvider = (type, factory) =>
+            factory.Create(typeof(LivriaBackend.Shared.Resources.SharedResource));
+    });
 
 
 builder.Services.AddEndpointsApiExplorer();
@@ -134,6 +153,7 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
+app.UseRequestLocalization(localizationOptions);
 
 using (var scope = app.Services.CreateScope())
 {
