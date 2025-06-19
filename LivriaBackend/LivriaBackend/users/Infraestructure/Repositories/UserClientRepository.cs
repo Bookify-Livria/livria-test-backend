@@ -19,7 +19,9 @@ namespace LivriaBackend.users.Infrastructure.Repositories
         {
             return await this.Context.UserClients
                 .Include(uc => uc.UserCommunities)
-                .Include(uc => uc.FavoriteBooks) // ¡NUEVO! Incluir los libros favoritos
+                .Include(uc => uc.FavoriteBooks)
+                .Include(uc => uc.Orders)
+                .ThenInclude(o => o.Items)
                 .FirstOrDefaultAsync(uc => uc.Id == id);
         }
 
@@ -27,7 +29,9 @@ namespace LivriaBackend.users.Infrastructure.Repositories
         {
             return await this.Context.UserClients
                 .Include(uc => uc.UserCommunities)
-                .Include(uc => uc.FavoriteBooks) // ¡NUEVO! Incluir los libros favoritos
+                .Include(uc => uc.FavoriteBooks)
+                .Include(uc => uc.Orders)
+                .ThenInclude(o => o.Items)
                 .ToListAsync();
         }
 
@@ -52,7 +56,9 @@ namespace LivriaBackend.users.Infrastructure.Repositories
         {
             return await this.Context.UserClients
                 .Include(uc => uc.UserCommunities)
-                .Include(uc => uc.FavoriteBooks) // ¡NUEVO!
+                .Include(uc => uc.FavoriteBooks)
+                .Include(uc => uc.Orders) 
+                .ThenInclude(o => o.Items)
                 .FirstOrDefaultAsync(uc => uc.Username == username);
         }
 
@@ -60,7 +66,9 @@ namespace LivriaBackend.users.Infrastructure.Repositories
         {
             return await this.Context.UserClients
                 .Include(uc => uc.UserCommunities)
-                .Include(uc => uc.FavoriteBooks) // ¡NUEVO!
+                .Include(uc => uc.FavoriteBooks) 
+                .Include(uc => uc.Orders) 
+                .ThenInclude(o => o.Items)
                 .FirstOrDefaultAsync(uc => uc.Email == email);
         }
 

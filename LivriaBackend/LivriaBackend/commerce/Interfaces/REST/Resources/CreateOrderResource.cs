@@ -22,8 +22,7 @@ namespace LivriaBackend.commerce.Interfaces.REST.Resources
         [Required(ErrorMessage = "EmptyField")]
         bool IsDelivery,
         
-        [StringLength(255, ErrorMessage = "MaxLengthError")]
-        ShippingResource ShippingDetails, 
+        ShippingResource? ShippingDetails, 
         
         [Required(ErrorMessage = "EmptyField")]
         List<int> CartItemIds 

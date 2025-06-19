@@ -8,6 +8,9 @@ namespace LivriaBackend.commerce.Interfaces.REST.Resources
         [Required(ErrorMessage = "EmptyField")]
         int UserClientId, 
         [Required(ErrorMessage = "EmptyField")]
-        string Content
+        string Content,
+        [Required(ErrorMessage = "EmptyField")]
+        [Range(1, 5)]
+        int Stars
     );
 }

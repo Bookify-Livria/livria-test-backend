@@ -9,8 +9,8 @@ namespace LivriaBackend.notifications.Application.Validation
 {
     public class ValidNotificationTypeAttribute : ValidationAttribute
     {
-        public string ErrorResourceName { get; set; } = "InvalidNotificationType"; // Nombre de la clave
-        public Type ErrorResourceType { get; set; } = typeof(DataAnnotations); // Tipo de la clase generada de DataAnnotations de notifications
+        public string ErrorResourceName { get; set; } = "InvalidNotificationType"; 
+        public Type ErrorResourceType { get; set; } = typeof(DataAnnotations); 
 
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using LivriaBackend.commerce.Interfaces.REST.Resources; 
 
 namespace LivriaBackend.users.Interfaces.REST.Resources
 {
@@ -22,7 +23,7 @@ namespace LivriaBackend.users.Interfaces.REST.Resources
         [StringLength(255, ErrorMessage = "MaxLengthError")]
         string Phrase,
         
-        List<int> Order, 
+        List<OrderResource> Orders, 
         
         string Subscription
         

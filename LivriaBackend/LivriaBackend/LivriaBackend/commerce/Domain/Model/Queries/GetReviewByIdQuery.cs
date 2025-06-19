@@ -1,6 +1,0 @@
-﻿namespace LivriaBackend.commerce.Domain.Model.Queries
-{
-    public record GetReviewByIdQuery(
-        int ReviewId
-    );
-}
