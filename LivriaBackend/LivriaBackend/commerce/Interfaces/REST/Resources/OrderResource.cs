@@ -1,20 +1,24 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System; 
+using System;
+using LivriaBackend.users.Application.Resources;
 
 namespace LivriaBackend.commerce.Interfaces.REST.Resources
 {
     public record OrderResource(
+        [Range(0, int.MaxValue, ErrorMessage = "MinimumValueError")]
         int Id,
         
+        [StringLength(6, ErrorMessage = "MaxLengthError")]
         string Code,
         
+        [Range(0, int.MaxValue, ErrorMessage = "MinimumValueError")]
         int UserClientId,
         
         [StringLength(255, ErrorMessage = "MaxLengthError")]
         string UserEmail,
         
-        [Phone(ErrorMessage = "PhoneError")]
+        [Phone(ErrorMessageResourceType = typeof(DataAnnotations), ErrorMessageResourceName = "PhoneError")]
         string UserPhone,
         
         [StringLength(255, ErrorMessage = "MaxLengthError")]
