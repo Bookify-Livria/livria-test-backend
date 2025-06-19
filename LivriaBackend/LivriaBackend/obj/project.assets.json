@@ -2814,11 +2814,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Asuss\\Downloads\\livria-test-backend-main\\LivriaBackend\\LivriaBackend\\LivriaBackend.csproj",
+      "projectUniqueName": "C:\\Users\\Asuss\\Downloads\\carpenter\\livria-test-backend-main\\LivriaBackend\\LivriaBackend\\LivriaBackend.csproj",
       "projectName": "LivriaBackend",
-      "projectPath": "C:\\Users\\Asuss\\Downloads\\livria-test-backend-main\\LivriaBackend\\LivriaBackend\\LivriaBackend.csproj",
+      "projectPath": "C:\\Users\\Asuss\\Downloads\\carpenter\\livria-test-backend-main\\LivriaBackend\\LivriaBackend\\LivriaBackend.csproj",
       "packagesPath": "C:\\Users\\Asuss\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Asuss\\Downloads\\livria-test-backend-main\\LivriaBackend\\LivriaBackend\\obj\\",
+      "outputPath": "C:\\Users\\Asuss\\Downloads\\carpenter\\livria-test-backend-main\\LivriaBackend\\LivriaBackend\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Asuss\\AppData\\Roaming\\NuGet\\NuGet.Config"
