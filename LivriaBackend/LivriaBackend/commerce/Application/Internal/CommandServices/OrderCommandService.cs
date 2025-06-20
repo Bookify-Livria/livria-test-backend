@@ -64,7 +64,7 @@ namespace LivriaBackend.commerce.Application.Internal.CommandServices
         /// <returns>El objeto <see cref="Order"/> creado.</returns>
         /// <exception cref="ArgumentException">
         /// Se lanza si el cliente de usuario no se encuentra, si un ítem del carrito no existe o no pertenece al usuario,
-        /// si el carrito está vacío, o si un libro no se encuentra.
+        /// si el carrito está vacío, si un libro no se encuentra, o si el estado de la orden es inválido.
         /// </exception>
         /// <exception cref="InvalidOperationException">Se lanza si no hay suficiente stock para un libro.</exception>
         /// <remarks>
@@ -124,7 +124,7 @@ namespace LivriaBackend.commerce.Application.Internal.CommandServices
                     book.Id,
                     book.Title,
                     book.Author,
-                    book.Price,
+                    book.SalePrice,
                     book.Cover,
                     cartItem.Quantity
                 );
@@ -134,14 +134,17 @@ namespace LivriaBackend.commerce.Application.Internal.CommandServices
                 await _bookRepository.UpdateAsync(book);
             }
 
+            
             var order = new Order(
                 command.UserClientId,
                 command.UserEmail,
                 command.UserPhone,
                 command.UserFullName,
+                command.RecipientName,
                 command.IsDelivery,
                 command.ShippingDetails,
-                orderItems 
+                orderItems,
+                command.Status 
             );
 
             await _orderRepository.AddAsync(order);
@@ -159,6 +162,26 @@ namespace LivriaBackend.commerce.Application.Internal.CommandServices
                 DateTime.UtcNow       
             ));
 
+            return order;
+        }
+
+        /// <summary>
+        /// Maneja el comando <see cref="UpdateOrderStatusCommand"/> para actualizar el estado de una orden existente.
+        /// </summary>
+        /// <param name="command">El comando que contiene el ID de la orden y el nuevo estado.</param>
+        /// <returns>El objeto <see cref="Order"/> actualizado, o <c>null</c> si la orden no se encuentra.</returns>
+        /// <exception cref="ArgumentException">Se lanza si el nuevo estado no es 'pending', 'in progress' o 'delivered'.</exception>
+        public async Task<Order?> Handle(UpdateOrderStatusCommand command)
+        {
+            var order = await _orderRepository.GetByIdAsync(command.OrderId);
+            if (order == null)
+            {
+                return null; 
+            }
+            
+            order.UpdateStatus(command.Status);
+
+            await _unitOfWork.CompleteAsync(); 
             return order;
         }
     }

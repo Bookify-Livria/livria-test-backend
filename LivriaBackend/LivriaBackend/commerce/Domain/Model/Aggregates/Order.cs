@@ -50,6 +50,12 @@ namespace LivriaBackend.commerce.Domain.Model.Aggregates
         public string UserFullName { get; private set; }
 
         /// <summary>
+        /// Obtiene el nombre del destinatario de la orden.
+        /// </summary>
+        public string RecipientName { get; private set; }
+
+
+        /// <summary>
         /// Obtiene un valor que indica si la orden requiere envío a domicilio.
         /// </summary>
         public bool IsDelivery { get; private set; } 
@@ -69,11 +75,23 @@ namespace LivriaBackend.commerce.Domain.Model.Aggregates
         /// </summary>
         public DateTime Date { get; private set; } 
 
+        /// <summary>
+        /// Obtiene el estado actual de la orden.
+        /// Este valor debe ser 'pending', 'in progress' o 'delivered'.
+        /// </summary>
+        public string Status { get; private set; }
+
         private readonly List<OrderItem> _items = new List<OrderItem>();
         /// <summary>
         /// Obtiene una colección de solo lectura de los ítems incluidos en esta orden.
         /// </summary>
         public IReadOnlyCollection<OrderItem> Items => _items.AsReadOnly();
+
+        // Define los estados permitidos para la orden.
+        private static readonly HashSet<string> AllowedStatuses = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "in progress", "pending", "delivered"
+        };
 
         /// <summary>
         /// Constructor protegido para uso de frameworks ORM (como Entity Framework Core).
@@ -88,13 +106,16 @@ namespace LivriaBackend.commerce.Domain.Model.Aggregates
         /// <param name="userEmail">El correo electrónico del usuario.</param>
         /// <param name="userPhone">El número de teléfono del usuario.</param>
         /// <param name="userFullName">El nombre completo del usuario.</param>
+        /// <param name="recipientName">El nombre del destinatario de la orden.</param>
         /// <param name="isDelivery">Indica si la orden requiere envío a domicilio.</param>
         /// <param name="shipping">Los detalles de envío (obligatorio si <paramref name="isDelivery"/> es verdadero, debe ser nulo si es falso).</param>
         /// <param name="orderItems">La lista de ítems que componen la orden.</param>
+        /// <param name="status">El estado inicial de la orden ('pending', 'in progress' o 'delivered').</param>
         /// <exception cref="ArgumentOutOfRangeException">Se lanza si el UserClient ID no es positivo.</exception>
-        /// <exception cref="ArgumentNullException">Se lanza si UserEmail, UserPhone o UserFullName son nulos o vacíos.</exception>
+        /// <exception cref="ArgumentNullException">Se lanza si UserEmail, UserPhone, UserFullName o RecipientName son nulos o vacíos.</exception>
         /// <exception cref="ArgumentException">
-        /// Se lanza si la lista de ítems está vacía, o si los detalles de envío no corresponden al valor de <paramref name="isDelivery"/>.
+        /// Se lanza si la lista de ítems está vacía, si los detalles de envío no corresponden al valor de <paramref name="isDelivery"/>,
+        /// o si el estado no es 'pending', ' in progress' o 'delivered'.
         /// </exception>
         /// <remarks>
         /// Este constructor:
@@ -108,23 +129,34 @@ namespace LivriaBackend.commerce.Domain.Model.Aggregates
             string userEmail,
             string userPhone,
             string userFullName,
+            string recipientName,
             bool isDelivery,
             Shipping shipping, 
-            List<OrderItem> orderItems) 
+            List<OrderItem> orderItems,
+            string status)
         {
             if (userClientId <= 0) throw new ArgumentOutOfRangeException(nameof(userClientId), "UserClient ID must be positive.");
             if (string.IsNullOrWhiteSpace(userEmail)) throw new ArgumentNullException(nameof(userEmail), "User email cannot be empty.");
             if (string.IsNullOrWhiteSpace(userPhone)) throw new ArgumentNullException(nameof(userPhone), "User phone cannot be empty.");
             if (string.IsNullOrWhiteSpace(userFullName)) throw new ArgumentNullException(nameof(userFullName), "User full name cannot be empty.");
+            if (string.IsNullOrWhiteSpace(recipientName)) throw new ArgumentNullException(nameof(recipientName), "Recipient Name cannot be empty.");
             if (orderItems == null || !orderItems.Any()) throw new ArgumentException("Order must contain at least one item.", nameof(orderItems));
             if (isDelivery && shipping == null) throw new ArgumentException("Shipping details are required for delivery orders.");
             if (!isDelivery && shipping != null) throw new ArgumentException("Shipping details should be null for non-delivery orders.");
+            
+            
+            if (string.IsNullOrWhiteSpace(status) || !AllowedStatuses.Contains(status))
+            {
+                throw new ArgumentException($"El estado de la orden debe ser '{string.Join("' o '", AllowedStatuses)}'.", nameof(status));
+            }
 
 
             UserClientId = userClientId;
             UserEmail = userEmail;
             UserPhone = userPhone;
             UserFullName = userFullName;
+            RecipientName = recipientName;
+            Status = status;
             IsDelivery = isDelivery;
             Shipping = shipping; 
 
@@ -158,5 +190,18 @@ namespace LivriaBackend.commerce.Domain.Model.Aggregates
             return new string(result);
         }
 
+        /// <summary>
+        /// Actualiza el estado de la orden.
+        /// </summary>
+        /// <param name="newStatus">El nuevo estado de la orden.</param>
+        /// <exception cref="ArgumentException">Se lanza si el nuevo estado no es 'pending', 'in progress' o 'delivered'.</exception>
+        public void UpdateStatus(string newStatus)
+        {
+            if (string.IsNullOrWhiteSpace(newStatus) || !AllowedStatuses.Contains(newStatus))
+            {
+                throw new ArgumentException($"El estado de la orden debe ser '{string.Join("' o '", AllowedStatuses)}'.", nameof(newStatus));
+            }
+            Status = newStatus;
+        }
     }
 }

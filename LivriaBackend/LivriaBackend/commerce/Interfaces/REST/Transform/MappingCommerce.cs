@@ -61,6 +61,8 @@ namespace LivriaBackend.commerce.Interfaces.REST.Transform
             // <summary>Crea un mapeo del recurso <see cref="CreateOrderResource"/> a <see cref="CreateOrderCommand"/>.</summary>
             CreateMap<CreateOrderResource, CreateOrderCommand>();
 
+            
+            
             // <summary>Crea un mapeo del recurso <see cref="ShippingResource"/> al objeto de valor <see cref="Shipping"/>.</summary>
             CreateMap<ShippingResource, Shipping>(); 
         }

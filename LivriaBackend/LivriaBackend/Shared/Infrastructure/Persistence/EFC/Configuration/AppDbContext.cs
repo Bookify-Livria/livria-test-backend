@@ -113,7 +113,7 @@ namespace LivriaBackend.Shared.Infrastructure.Persistence.EFC.Configuration
                 entity.Property(b => b.Title).IsRequired().HasMaxLength(255);
                 entity.Property(b => b.Description).HasMaxLength(1000);
                 entity.Property(b => b.Author).IsRequired().HasMaxLength(100);
-                entity.Property(b => b.Price).IsRequired().HasColumnType("decimal(10, 2)");
+                entity.Property(b => b.SalePrice).IsRequired().HasColumnType("decimal(10, 2)");
                 entity.Property(b => b.Stock).IsRequired();
                 entity.Property(b => b.Cover).HasMaxLength(255);
                 entity.Property(b => b.Genre).HasMaxLength(50);
@@ -191,6 +191,8 @@ namespace LivriaBackend.Shared.Infrastructure.Persistence.EFC.Configuration
                 entity.Property(o => o.UserEmail).IsRequired().HasMaxLength(100);
                 entity.Property(o => o.UserPhone).IsRequired().HasMaxLength(20);
                 entity.Property(o => o.UserFullName).IsRequired().HasMaxLength(255);
+                entity.Property(o => o.RecipientName).IsRequired().HasMaxLength(255);
+                entity.Property(o => o.Status).IsRequired().HasMaxLength(255);
                 entity.Property(o => o.IsDelivery).IsRequired();
                 entity.Property(o => o.Total).IsRequired().HasColumnType("decimal(10, 2)");
                 entity.Property(o => o.Date).IsRequired();

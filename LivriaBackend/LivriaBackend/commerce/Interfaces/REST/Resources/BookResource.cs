@@ -18,9 +18,10 @@ namespace LivriaBackend.commerce.Interfaces.REST.Resources
         string Author,
         
         [Range(0.01, 10000.00, ErrorMessage = "RangeError")]
-        decimal Price,
+        decimal SalePrice,
         
-        [Range(0, int.MaxValue, ErrorMessage = "MinimumValueError")]
+        
+        [Range(1, int.MaxValue, ErrorMessage = "MinimumValueError")]
         int Stock,
         
         [StringLength(255, ErrorMessage = "MaxLengthError")]

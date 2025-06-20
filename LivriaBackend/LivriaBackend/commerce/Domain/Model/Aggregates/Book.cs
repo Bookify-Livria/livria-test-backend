@@ -1,4 +1,4 @@
-﻿using System; // Necesario para ArgumentOutOfRangeException, InvalidOperationException
+﻿using System;
 using System.Collections.Generic;
 using LivriaBackend.commerce.Domain.Model.Entities;
 
@@ -34,8 +34,10 @@ namespace LivriaBackend.commerce.Domain.Model.Aggregates
         /// <summary>
         /// Obtiene el precio del libro.
         /// </summary>
-        public decimal Price { get; private set; }
+        public decimal SalePrice { get; private set; }
 
+        
+        
         /// <summary>
         /// Obtiene o establece la cantidad de stock disponible del libro.
         /// Este valor es mutable a través de métodos de comportamiento.
@@ -63,6 +65,12 @@ namespace LivriaBackend.commerce.Domain.Model.Aggregates
         /// </summary>
         public ICollection<Review> Reviews { get; private set; } = new List<Review>();
 
+        
+        private static readonly HashSet<string> AllowedGenres = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "literatura", "noficcion", "mangasycomics", "juvenil", "infantil", "ebooks"
+        };
+        
         /// <summary>
         /// Constructor protegido para uso de frameworks ORM (como Entity Framework Core).
         /// No debe ser utilizado directamente para la creación de instancias de <see cref="Book"/>.
@@ -75,17 +83,28 @@ namespace LivriaBackend.commerce.Domain.Model.Aggregates
         /// <param name="title">El título del libro.</param>
         /// <param name="description">La descripción del libro.</param>
         /// <param name="author">El autor del libro.</param>
-        /// <param name="price">El precio del libro.</param>
+        /// <param name="salePrice">El precio del libro.</param>
         /// <param name="stock">La cantidad inicial de stock disponible.</param>
         /// <param name="cover">La URL o ruta de la imagen de la portada.</param>
         /// <param name="genre">El género del libro.</param>
         /// <param name="language">El idioma del libro.</param>
-        public Book(string title, string description, string author, decimal price, int stock, string cover, string genre, string language)
+        /// <exception cref="ArgumentException">Se lanza si el idioma no es 'english' o 'español'.</exception>
+        public Book(string title, string description, string author, decimal salePrice, int stock, string cover, string genre, string language)
         {
+            if (string.IsNullOrEmpty(language) || !(language.Equals("english", StringComparison.OrdinalIgnoreCase) || language.Equals("español", StringComparison.OrdinalIgnoreCase)))
+            {
+                throw new ArgumentException("El idioma del libro debe ser 'english' o 'español'.", nameof(language));
+            }
+            
+            if (string.IsNullOrEmpty(genre) || !AllowedGenres.Contains(genre))
+            {
+                throw new ArgumentException($"El género del libro debe ser uno de los siguientes: {string.Join(", ", AllowedGenres)}.", nameof(genre));
+            }
+
             Title = title;
             Description = description;
             Author = author;
-            Price = price;
+            SalePrice = salePrice;
             Stock = stock; 
             Cover = cover;
             Genre = genre;
@@ -112,22 +131,48 @@ namespace LivriaBackend.commerce.Domain.Model.Aggregates
         }
 
         /// <summary>
+        /// Establece la cantidad de stock del libro a un nuevo valor.
+        /// </summary>
+        /// <param name="newStock">La nueva cantidad de stock. No puede ser negativa.</param>
+        /// <exception cref="ArgumentOutOfRangeException">Se lanza si el nuevo stock es negativo.</exception>
+        public void SetStock(int newStock)
+        {
+            if (newStock < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(newStock), "El stock no puede ser negativo.");
+            }
+            Stock = newStock;
+        }
+        
+        /// <summary>
         /// Actualiza todos los detalles mutables del libro.
         /// </summary>
         /// <param name="title">El nuevo título del libro.</param>
         /// <param name="description">La nueva descripción del libro.</param>
         /// <param name="author">El nuevo autor del libro.</param>
-        /// <param name="price">El nuevo precio del libro.</param>
+        /// <param name="salePrice">El nuevo precio del libro.</param>
         /// <param name="stock">La nueva cantidad de stock disponible.</param>
         /// <param name="cover">La nueva URL o ruta de la imagen de la portada.</param>
         /// <param name="genre">El nuevo género del libro.</param>
         /// <param name="language">El nuevo idioma del libro.</param>
-        public void Update(string title, string description, string author, decimal price, int stock, string cover, string genre, string language)
+        /// <exception cref="ArgumentException">Se lanza si el idioma no es 'english' o 'español'.</exception>
+        public void Update(string title, string description, string author, decimal salePrice, int stock, string cover, string genre, string language)
         {
+            if (string.IsNullOrEmpty(language) || !(language.Equals("english", StringComparison.OrdinalIgnoreCase) || language.Equals("español", StringComparison.OrdinalIgnoreCase)))
+            {
+                throw new ArgumentException("El idioma del libro debe ser 'english' o 'español'.", nameof(language));
+            }
+            
+            if (string.IsNullOrEmpty(genre) || !AllowedGenres.Contains(genre))
+            {
+                throw new ArgumentException($"El género del libro debe ser uno de los siguientes: {string.Join(", ", AllowedGenres)}.", nameof(genre));
+            }
+            
+
             Title = title;
             Description = description;
             Author = author;
-            Price = price;
+            SalePrice = salePrice;
             Stock = stock;
             Cover = cover;
             Genre = genre;

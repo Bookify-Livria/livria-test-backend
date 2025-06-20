@@ -31,6 +31,14 @@ namespace LivriaBackend.commerce.Domain.Model.Commands
         string UserFullName,
         
         [Required]
+        [StringLength(255)]
+        string RecipientName,
+        
+        [Required]
+        [StringLength(255)]
+        string Status,
+        
+        [Required]
         bool IsDelivery,
         
         Shipping ShippingDetails,

@@ -24,6 +24,12 @@ namespace LivriaBackend.commerce.Interfaces.REST.Resources
         [StringLength(255, ErrorMessage = "MaxLengthError")]
         string UserFullName,
         
+        [StringLength(255, ErrorMessage = "MaxLengthError")]
+        string RecipientName,
+        
+        [StringLength(255, ErrorMessage = "MaxLengthError")]
+        string Status,
+        
         bool IsDelivery,
         
         ShippingResource Shipping, 

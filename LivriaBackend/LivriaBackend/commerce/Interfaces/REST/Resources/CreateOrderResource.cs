@@ -22,6 +22,15 @@ namespace LivriaBackend.commerce.Interfaces.REST.Resources
         string UserFullName,
         
         [Required(ErrorMessage = "EmptyField")]
+        [StringLength(255, ErrorMessage = "MaxLengthError")]
+        string RecipientName,
+
+        [Required(ErrorMessage = "EmptyField")]
+        [StringLength(255, ErrorMessage = "MaxLengthError")]
+        string Status,
+
+        
+        [Required(ErrorMessage = "EmptyField")]
         bool IsDelivery,
         
         ShippingResource? ShippingDetails, 

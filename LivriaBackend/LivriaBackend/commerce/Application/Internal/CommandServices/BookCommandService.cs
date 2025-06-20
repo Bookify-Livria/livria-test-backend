@@ -44,7 +44,7 @@ namespace LivriaBackend.commerce.Application.Internal.CommandServices
                 command.Title,
                 command.Description,
                 command.Author,
-                command.Price,
+                command.SalePrice,
                 command.Stock,
                 command.Cover,
                 command.Genre,
@@ -55,6 +55,28 @@ namespace LivriaBackend.commerce.Application.Internal.CommandServices
             await _unitOfWork.CompleteAsync(); 
 
             return book; 
+        }
+        
+        /// <summary>
+        /// Maneja el comando <see cref="UpdateBookStockCommand"/> para actualizar el stock de un libro.
+        /// </summary>
+        /// <param name="command">El comando que contiene el ID del libro y la nueva cantidad de stock.</param>
+        /// <returns>El objeto <see cref="Book"/> actualizado, o <c>null</c> si el libro no se encuentra.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Se lanza si el nuevo stock es negativo (aunque el dominio ya lo valida).</exception>
+        public async Task<Book?> Handle(UpdateBookStockCommand command)
+        {
+            var book = await _bookRepository.GetByIdAsync(command.BookId);
+            if (book == null)
+            {
+                return null; // Book not found
+            }
+
+            // Call the behavior method on the Book aggregate to update its stock
+            // The Book aggregate itself validates if newStock is negative.
+            book.SetStock(command.NewStock);
+
+            await _unitOfWork.CompleteAsync(); // Persist changes
+            return book;
         }
     }
 }

@@ -18,6 +18,8 @@ namespace LivriaBackend.commerce.Interfaces.REST.Controllers
     [ApiController]
     [Route("api/v1/books")]
     [Produces(MediaTypeNames.Application.Json)]
+    [Consumes(MediaTypeNames.Application.Json)] 
+
     public class BooksController : ControllerBase
     {
         private readonly IBookQueryService _bookQueryService;
@@ -105,6 +107,65 @@ namespace LivriaBackend.commerce.Interfaces.REST.Controllers
 
             var bookResource = _mapper.Map<BookResource>(book);
             return CreatedAtAction(nameof(GetBookById), new { id = book.Id }, bookResource);
+        }
+        
+        /// <summary>
+        /// Actualiza la cantidad de stock de un libro existente por su ID.
+        /// </summary>
+        /// <param name="bookId">El identificador único del libro cuyo stock se actualizará.</param>
+        /// <param name="resource">El recurso que contiene la nueva cantidad de stock.</param>
+        /// <returns>
+        /// Una acción de resultado HTTP que contiene el <see cref="BookResource"/> actualizado
+        /// si la operación fue exitosa (código 200 OK).
+        /// Retorna 400 Bad Request si la validación del stock falla o los datos son inválidos.
+        /// Retorna 404 Not Found si el libro no existe.
+        /// Retorna 500 Internal Server Error si ocurre un error inesperado.
+        /// </returns>
+        [HttpPut("{bookId}/stock")] // PUT api/v1/books/{bookId}/stock
+        [SwaggerOperation(
+            Summary = "Actualizar el stock de un libro.",
+            Description = "Permite cambiar la cantidad de stock disponible de un libro."
+        )]
+        [ProducesResponseType(typeof(BookResource), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> UpdateBookStock(int bookId, [FromBody] UpdateBookStockResource resource)
+        {
+            // Valida el DTO de entrada usando Data Annotations
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            // Crea el comando. El BookId viene de la URL, el NewStock del cuerpo de la solicitud.
+            var command = new UpdateBookStockCommand(bookId, resource.NewStock);
+
+            try
+            {
+                // Delega la lógica de negocio al servicio de comandos.
+                var updatedBook = await _bookCommandService.Handle(command);
+
+                // Si el servicio devuelve null, el libro no fue encontrado.
+                if (updatedBook == null)
+                {
+                    return NotFound(new { message = $"Book with ID {bookId} not found." });
+                }
+
+                // Mapea la entidad de dominio actualizada a un recurso para la respuesta de la API.
+                var bookResource = _mapper.Map<BookResource>(updatedBook);
+                return Ok(bookResource); // 200 OK con el recurso actualizado
+            }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                // Captura específicamente si el stock es negativo (aunque Resource ya valida esto, es una segunda línea de defensa)
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                // Captura cualquier otra excepción inesperada.
+                return StatusCode(500, new { message = "An unexpected error occurred while updating book stock: " + ex.Message });
+            }
         }
 
     }

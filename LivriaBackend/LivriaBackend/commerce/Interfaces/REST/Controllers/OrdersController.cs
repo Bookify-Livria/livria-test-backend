@@ -3,7 +3,7 @@ using LivriaBackend.commerce.Domain.Model.Aggregates;
 using LivriaBackend.commerce.Domain.Model.Commands;
 using LivriaBackend.commerce.Domain.Model.Queries;
 using LivriaBackend.commerce.Domain.Model.Services;
-using LivriaBackend.commerce.Interfaces.REST.Resources;
+using LivriaBackend.commerce.Interfaces.REST.Resources; // Ensure this includes UpdateOrderStatusResource
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -45,7 +45,7 @@ namespace LivriaBackend.commerce.Interfaces.REST.Controllers
         /// <returns>
         /// Una acción de resultado HTTP que contiene el <see cref="OrderResource"/> de la orden creada
         /// con un código 201 CreatedAtAction si la operación es exitosa.
-        /// Retorna BadRequest (400) si hay un error de argumento o una operación inválida (ej. stock insuficiente).
+        /// Retorna BadRequest (400) si hay un error de argumento o una operación inválida (ej. stock insuficiente, estado inválido).
         /// Retorna StatusCode 500 si ocurre un error inesperado.
         /// </returns>
         [HttpPost]
@@ -53,6 +53,9 @@ namespace LivriaBackend.commerce.Interfaces.REST.Controllers
             Summary= "Crear una nueva orden.",
             Description= "Crea una nueva orden en el sistema."
         )]
+        [ProducesResponseType(typeof(OrderResource), 201)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(500)]
         public async Task<ActionResult<OrderResource>> CreateOrder([FromBody] CreateOrderResource resource)
         {
             
@@ -90,6 +93,8 @@ namespace LivriaBackend.commerce.Interfaces.REST.Controllers
             Summary= "Obtener los datos de una orden en específico.",
             Description= "Te muestra los datos de la orden que buscaste."
         )]
+        [ProducesResponseType(typeof(OrderResource), 200)]
+        [ProducesResponseType(404)]
         public async Task<ActionResult<OrderResource>> GetOrderById(int id)
         {
             var query = new GetOrderByIdQuery(id);
@@ -117,6 +122,8 @@ namespace LivriaBackend.commerce.Interfaces.REST.Controllers
             Summary= "Obtener los datos de una orden en específico por medio de su código.",
             Description= "Te muestra los datos de la orden que buscaste por medio de su código."
         )]
+        [ProducesResponseType(typeof(OrderResource), 200)]
+        [ProducesResponseType(404)]
         public async Task<ActionResult<OrderResource>> GetOrderByCode(string code)
         {
             var query = new GetOrderByCodeQuery(code);
@@ -144,12 +151,65 @@ namespace LivriaBackend.commerce.Interfaces.REST.Controllers
             Summary= "Obtener los datos de las órdenes de un usuario cliente en específico.",
             Description= "Te muestra los datos de las órdenes del usuario cliente que buscaste."
         )]
+        [ProducesResponseType(typeof(IEnumerable<OrderResource>), 200)]
         public async Task<ActionResult<IEnumerable<OrderResource>>> GetOrdersByUserId(int userClientId)
         {
             var query = new GetOrdersByUserIdQuery(userClientId);
             var orders = await _orderQueryService.Handle(query);
             var orderResources = _mapper.Map<IEnumerable<OrderResource>>(orders);
             return Ok(orderResources);
+        }
+
+        /// <summary>
+        /// Actualiza el estado de una orden existente por su ID.
+        /// </summary>
+        /// <param name="orderId">El identificador único de la orden a actualizar.</param>
+        /// <param name="resource">El recurso que contiene el nuevo estado ('pending', 'in progress' o 'delivered').</param>
+        /// <returns>
+        /// Una acción de resultado HTTP que contiene el <see cref="OrderResource"/> actualizado
+        /// si la operación fue exitosa (código 200 OK).
+        /// Retorna 400 Bad Request si la validación del estado falla o los datos son inválidos.
+        /// Retorna 404 Not Found si la orden no existe.
+        /// Retorna 500 Internal Server Error si ocurre un error inesperado.
+        /// </returns>
+        [HttpPut("{orderId}/status")] // Definición de la ruta: PUT /api/v1/orders/{orderId}/status
+        [SwaggerOperation(
+            Summary = "Actualizar el estado de una orden.",
+            Description = "Permite cambiar el estado de una orden a 'pending', 'in progress' o 'delivered'."
+        )]
+        [ProducesResponseType(typeof(OrderResource), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> UpdateOrderStatus(int orderId, [FromBody] UpdateOrderStatusResource resource)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            
+            var command = new UpdateOrderStatusCommand(orderId, resource.Status);
+
+            try
+            {
+                var updatedOrder = await _orderCommandService.Handle(command);
+                
+                if (updatedOrder == null)
+                {
+                    return NotFound(new { message = $"Order with ID {orderId} not found." });
+                }
+                
+                var orderResource = _mapper.Map<OrderResource>(updatedOrder);
+                return Ok(orderResource); 
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An unexpected error occurred while updating order status: " + ex.Message });
+            }
         }
     }
 }
