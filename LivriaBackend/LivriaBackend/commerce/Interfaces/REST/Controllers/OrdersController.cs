@@ -13,6 +13,9 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace LivriaBackend.commerce.Interfaces.REST.Controllers
 {
+    /// <summary>
+    /// Controlador RESTful para gestionar las operaciones relacionadas con las órdenes de compra.
+    /// </summary>
     [ApiController]
     [Route("api/v1/orders")]
     [Produces(MediaTypeNames.Application.Json)]
@@ -22,6 +25,12 @@ namespace LivriaBackend.commerce.Interfaces.REST.Controllers
         private readonly IOrderQueryService _orderQueryService;
         private readonly IMapper _mapper;
 
+        /// <summary>
+        /// Inicializa una nueva instancia de la clase <see cref="OrdersController"/>.
+        /// </summary>
+        /// <param name="orderCommandService">El servicio de comandos de órdenes.</param>
+        /// <param name="orderQueryService">El servicio de consulta de órdenes.</param>
+        /// <param name="mapper">La instancia de AutoMapper para la transformación de objetos.</param>
         public OrdersController(IOrderCommandService orderCommandService, IOrderQueryService orderQueryService, IMapper mapper)
         {
             _orderCommandService = orderCommandService;
@@ -29,6 +38,16 @@ namespace LivriaBackend.commerce.Interfaces.REST.Controllers
             _mapper = mapper;
         }
 
+        /// <summary>
+        /// Crea una nueva orden de compra en el sistema.
+        /// </summary>
+        /// <param name="resource">Los datos de la nueva orden a crear.</param>
+        /// <returns>
+        /// Una acción de resultado HTTP que contiene el <see cref="OrderResource"/> de la orden creada
+        /// con un código 201 CreatedAtAction si la operación es exitosa.
+        /// Retorna BadRequest (400) si hay un error de argumento o una operación inválida (ej. stock insuficiente).
+        /// Retorna StatusCode 500 si ocurre un error inesperado.
+        /// </returns>
         [HttpPost]
         [SwaggerOperation(
             Summary= "Crear una nueva orden.",
@@ -58,6 +77,14 @@ namespace LivriaBackend.commerce.Interfaces.REST.Controllers
             }
         }
 
+        /// <summary>
+        /// Obtiene los datos de una orden específica por su identificador único.
+        /// </summary>
+        /// <param name="id">El identificador único de la orden.</param>
+        /// <returns>
+        /// Una acción de resultado HTTP que contiene un <see cref="OrderResource"/> si la orden es encontrada (código 200 OK),
+        /// o un resultado NotFound (código 404) si la orden no existe.
+        /// </returns>
         [HttpGet("{id}")]
         [SwaggerOperation(
             Summary= "Obtener los datos de una orden en específico.",
@@ -77,6 +104,14 @@ namespace LivriaBackend.commerce.Interfaces.REST.Controllers
             return Ok(orderResource);
         }
 
+        /// <summary>
+        /// Obtiene los datos de una orden específica por su código de orden.
+        /// </summary>
+        /// <param name="code">El código alfanumérico de la orden.</param>
+        /// <returns>
+        /// Una acción de resultado HTTP que contiene un <see cref="OrderResource"/> si la orden es encontrada (código 200 OK),
+        /// o un resultado NotFound (código 404) si la orden no existe.
+        /// </returns>
         [HttpGet("code/{code}")]
         [SwaggerOperation(
             Summary= "Obtener los datos de una orden en específico por medio de su código.",
@@ -96,11 +131,18 @@ namespace LivriaBackend.commerce.Interfaces.REST.Controllers
             return Ok(orderResource);
         }
 
-
+        /// <summary>
+        /// Obtiene todas las órdenes realizadas por un cliente de usuario específico.
+        /// </summary>
+        /// <param name="userClientId">El identificador único del cliente de usuario.</param>
+        /// <returns>
+        /// Una acción de resultado HTTP que contiene una colección de <see cref="OrderResource"/>
+        /// si la operación es exitosa (código 200 OK). Puede ser una colección vacía si el usuario no tiene órdenes.
+        /// </returns>
         [HttpGet("users/{userClientId}")]
         [SwaggerOperation(
-            Summary= "Obtener los datos de un usuario cliente en específico.",
-            Description= "Te muestra los datos del usuario cliente que buscaste."
+            Summary= "Obtener los datos de las órdenes de un usuario cliente en específico.",
+            Description= "Te muestra los datos de las órdenes del usuario cliente que buscaste."
         )]
         public async Task<ActionResult<IEnumerable<OrderResource>>> GetOrdersByUserId(int userClientId)
         {

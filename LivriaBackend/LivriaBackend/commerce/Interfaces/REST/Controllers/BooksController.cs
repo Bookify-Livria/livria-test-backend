@@ -12,6 +12,9 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace LivriaBackend.commerce.Interfaces.REST.Controllers
 {
+    /// <summary>
+    /// Controlador RESTful para gestionar las operaciones relacionadas con los libros.
+    /// </summary>
     [ApiController]
     [Route("api/v1/books")]
     [Produces(MediaTypeNames.Application.Json)]
@@ -21,6 +24,12 @@ namespace LivriaBackend.commerce.Interfaces.REST.Controllers
         private readonly IBookCommandService _bookCommandService;
         private readonly IMapper _mapper;
 
+        /// <summary>
+        /// Inicializa una nueva instancia de la clase <see cref="BooksController"/>.
+        /// </summary>
+        /// <param name="bookQueryService">El servicio de consulta de libros.</param>
+        /// <param name="bookCommandService">El servicio de comandos de libros.</param>
+        /// <param name="mapper">La instancia de AutoMapper para la transformación de objetos.</param>
         public BooksController(IBookQueryService bookQueryService, IBookCommandService bookCommandService, IMapper mapper)
         {
             _bookQueryService = bookQueryService;
@@ -28,6 +37,13 @@ namespace LivriaBackend.commerce.Interfaces.REST.Controllers
             _mapper = mapper;
         }
 
+        /// <summary>
+        /// Obtiene los datos de todos los libros disponibles en el sistema.
+        /// </summary>
+        /// <returns>
+        /// Una acción de resultado HTTP que contiene una colección de <see cref="BookResource"/>
+        /// si la operación es exitosa (código 200 OK).
+        /// </returns>
         [HttpGet]
         [SwaggerOperation(
             Summary= "Obtener los datos de todos los libros.",
@@ -42,6 +58,14 @@ namespace LivriaBackend.commerce.Interfaces.REST.Controllers
             return Ok(bookResources);
         }
         
+        /// <summary>
+        /// Obtiene los datos de un libro específico por su identificador único.
+        /// </summary>
+        /// <param name="id">El identificador único del libro.</param>
+        /// <returns>
+        /// Una acción de resultado HTTP que contiene un <see cref="BookResource"/> si el libro es encontrado (código 200 OK),
+        /// o un resultado NotFound (código 404) si el libro no existe.
+        /// </returns>
         [HttpGet("{id}")]
         [SwaggerOperation(
             Summary= "Obtener los datos de un libro en específico.",
@@ -61,6 +85,14 @@ namespace LivriaBackend.commerce.Interfaces.REST.Controllers
             return Ok(bookResource);
         }
 
+        /// <summary>
+        /// Crea un nuevo libro en el sistema.
+        /// </summary>
+        /// <param name="resource">Los datos del nuevo libro a crear.</param>
+        /// <returns>
+        /// Una acción de resultado HTTP que contiene el <see cref="BookResource"/> del libro creado
+        /// con un código 201 CreatedAtAction si la operación es exitosa.
+        /// </returns>
         [HttpPost]
         [SwaggerOperation(
             Summary= "Crear un nuevo libro.",

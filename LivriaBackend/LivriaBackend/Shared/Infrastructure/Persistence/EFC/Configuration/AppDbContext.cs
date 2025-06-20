@@ -10,27 +10,54 @@ using System;
 
 namespace LivriaBackend.Shared.Infrastructure.Persistence.EFC.Configuration
 {
+    /// <summary>
+    /// Representa el contexto de la base de datos para la aplicación LivriaBackend.
+    /// Hereda de <see cref="DbContext"/> y es responsable de la configuración del modelo de datos
+    /// y la interacción con la base de datos utilizando Entity Framework Core.
+    /// </summary>
     public class AppDbContext : DbContext
     {
+        /// <summary>Representa la colección de libros en la base de datos.</summary>
         public DbSet<Book> Books { get; set; }
+        /// <summary>Representa la colección de reseñas de libros en la base de datos.</summary>
         public DbSet<Review> Reviews { get; set; }
+        /// <summary>Representa la colección de ítems en los carritos de compra en la base de datos.</summary>
         public DbSet<CartItem> CartItems { get; set; }
+        /// <summary>Representa la colección de órdenes de compra en la base de datos.</summary>
         public DbSet<Order> Orders { get; set; } 
+        /// <summary>Representa la colección de ítems dentro de las órdenes de compra en la base de datos.</summary>
         public DbSet<OrderItem> OrderItems { get; set; } 
 
+        /// <summary>Representa la colección de usuarios base en la base de datos.</summary>
         public DbSet<User> Users { get; set; }
+        /// <summary>Representa la colección de clientes de usuario en la base de datos.</summary>
         public DbSet<UserClient> UserClients { get; set; }
+        /// <summary>Representa la colección de administradores de usuario en la base de datos.</summary>
         public DbSet<UserAdmin> UserAdmins { get; set; }
 
+        /// <summary>Representa la colección de comunidades en la base de datos.</summary>
         public DbSet<Community> Communities { get; set; }
+        /// <summary>Representa la colección de publicaciones en las comunidades en la base de datos.</summary>
         public DbSet<Post> Posts { get; set; }
+        /// <summary>Representa la tabla de unión entre usuarios clientes y comunidades en la base de datos.</summary>
         public DbSet<UserCommunity> UserCommunities { get; set; }
+        
+        /// <summary>Representa la colección de notificaciones en la base de datos.</summary>
         public DbSet<Notification> Notifications { get; set; }
 
+        /// <summary>
+        /// Inicializa una nueva instancia de la clase <see cref="AppDbContext"/>.
+        /// </summary>
+        /// <param name="options">Las opciones de configuración para este contexto de base de datos.</param>
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
         }
 
+        /// <summary>
+        /// Configura el modelo de datos que se utilizará para crear el esquema de la base de datos.
+        /// Este método se llama una vez cuando se crea la instancia del contexto.
+        /// </summary>
+        /// <param name="modelBuilder">El constructor de modelos que se utiliza para configurar el modelo de la base de datos.</param>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -276,7 +303,7 @@ namespace LivriaBackend.Shared.Infrastructure.Persistence.EFC.Configuration
                 entity.HasKey(n => n.Id);
                 entity.Property(n => n.Id).IsRequired().ValueGeneratedOnAdd();
 
-                entity.Property(n => n.Date).IsRequired();
+                entity.Property(n => n.CreatedAt).IsRequired();
                 entity.Property(n => n.Title).IsRequired().HasMaxLength(100);
                 entity.Property(n => n.Content).IsRequired().HasMaxLength(500);
 
